@@ -1,7 +1,7 @@
 ---
-- name: all
+- hosts: webservers, nfs, db, lb
   import_playbook: ../static-assiginments/common.yml
 
 
-- name: uat-webservers
+- hosts: uat-webservers
   import_playbook: ../static-assiginments/uat-webservers.yml
