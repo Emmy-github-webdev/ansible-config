@@ -1,4 +1,2 @@
----
--   hosts: webservers
-    roles: webserver
-
+hosts: webservers
+roles: webserver
