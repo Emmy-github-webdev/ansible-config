@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: webservers, nfs, db, lb
   import_playbook: ../static-assiginments/common.yml
 
 
