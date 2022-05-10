@@ -1,5 +1,4 @@
 ---
-- name: uat-webservers
-  import_playbook: ../static-assiginments/uat-webservers.yml
+import_playbook: ../static-assiginments/uat-webservers.yml
 
 
