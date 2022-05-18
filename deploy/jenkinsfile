@@ -1,45 +1,37 @@
    pipeline {
     agent any
 
-  stages {
-    stage('Build') {
-      steps {
-        script {
-          sh 'echo "Building Stage"'
-        }
-      }
-    }
-
-    stage('Test') {
-      steps {
-        script {
-          sh 'echo "Testing Stage"'
-        }
-      }
-    }
-
-    stage('Package') {
-      steps {
-        script {
-          sh 'echo "Packaging Stage"'
-        }
-      }
-    }
-
-    stage('Deploy') {
-      steps {
-        script {
-          sh 'echo "Deploying Stage"'
-        }
-      }
-    }
-
-    stage('Clean Up') {
-      steps {
-        script {
-          sh 'echo "Clean Up Stage"'
-        }
-      }
-    }
+    parameters {
+    string(name: 'inventory', defaultValue: 'dev',  description: 'This is the inventory file for the environment to deploy configuration')
+    string(name: 'tag', defaultValue: 'all',  description: 'Tags to run ansible playbook against')
   }
+
+   environment {
+    branch = 'main'
+  }
+  stages {
+
+    stage('SCM Checkout') {
+      steps {
+        git branch: 'main', url: 'https://github.com/Emmy-github-webdev/ansible-config.git'
+      }
+    }
+
+    stage('Update ansible.cfg') {
+      steps {
+        sh "export ANSIBLE_CONFIG=${WORKSPACE}/deploy/ansible.cfg"
+      }
+    }
+
+    stage('Run playbook') {
+      steps {
+        ansiblePlaybook(credentialsId: 'private-key', disableHostKeyChecking: true, installation: 'ansible2', inventory: 'inventory/${inventory}', playbook: 'playbooks/site.yml', tags: '${tag}')
+      }
+    }
+
+    stage('Clean up') {
+      steps {
+        cleanWs(cleanWhenAborted: true, cleanWhenFailure: true, cleanWhenNotBuilt: true, cleanWhenUnstable: true, deleteDirs: true)
+      }
+    }
 }
