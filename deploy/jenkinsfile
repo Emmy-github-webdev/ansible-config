@@ -21,7 +21,7 @@ pipeline {
 
     stage('SCM Checkout') {
       steps {
-        git branch: 'add-more-stages', url: 'https://github.com/Emmy-github-webdev/ansible-config.git'
+        git branch: 'main', url: 'https://github.com/Emmy-github-webdev/ansible-config.git'
       }
     }
 
