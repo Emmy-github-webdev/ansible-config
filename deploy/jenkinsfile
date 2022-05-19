@@ -1,15 +1,23 @@
-   pipeline {
-    agent any
+pipeline {
+  agent any
 
-    parameters {
+  parameters {
     string(name: 'inventory', defaultValue: 'dev',  description: 'This is the inventory file for the environment to deploy configuration')
     string(name: 'tag', defaultValue: 'all',  description: 'Tags to run ansible playbook against')
   }
 
-   environment {
-    branch = 'main'
+  environment {
+    ANSIBLE_CONFIG="${WORKSPACE}/deploy/ansible.cfg"
   }
   stages {
+
+    stage('Initial Cleanup'){
+      steps {
+        dir("${WORKSPACE}"){
+          deleteDir()
+        }
+      }
+    }
 
     stage('SCM Checkout') {
       steps {
@@ -17,15 +25,16 @@
       }
     }
 
-    stage('Update ansible.cfg') {
+    stage('Prepare Ansible fr execution') {
       steps {
-        sh "export ANSIBLE_CONFIG=${WORKSPACE}/deploy/ansible.cfg"
+        sh 'echo ${WORKSPACE}' 
+        sh 'sed -i "3 a roles_path=${WORKSPACE}/roles" ${WORKSPACE}/deploy/ansible.cfg' 
       }
     }
 
-    stage('Run playbook') {
+    stage('Run Ansible playbook') {
       steps {
-        ansiblePlaybook(credentialsId: 'private-key', disableHostKeyChecking: true, installation: 'ansible2', inventory: 'inventory/${inventory}', playbook: 'playbooks/site.yml', tags: '${tag}')
+        ansiblePlaybook colorized: true, credentialsId: 'private-key', disableHostKeyChecking: true, installation: 'ansible2', inventory: 'inventory/dev', playbook: 'playbooks/site.yml'
       }
     }
 
@@ -34,4 +43,5 @@
         cleanWs(cleanWhenAborted: true, cleanWhenFailure: true, cleanWhenNotBuilt: true, cleanWhenUnstable: true, deleteDirs: true)
       }
     }
+  }
 }
