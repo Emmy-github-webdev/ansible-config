@@ -1,5 +1,4 @@
 ---
 - hosts: nginx
   become: true
-  roles:
-     - nginx
+  roles: nginx
